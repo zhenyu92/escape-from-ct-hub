@@ -99,6 +99,13 @@ Single column below 620px, verified with no horizontal overflow at a 400px viewp
 All animation — flicker, tracking bar, sensor noise — is disabled under
 `prefers-reduced-motion`.
 
+Every foreground colour clears **WCAG AA (4.5:1)** against its panel. The first pass
+did not: body copy sat at 3.8:1, log timestamps at 3.1:1 and the footer at 2.5:1.
+The scanline overlay was a hidden culprit — it covered half of every glyph at `.36`
+alpha, so it was spending most of the contrast budget before the text colours had a
+say. It now covers a quarter of the rows at `.18`, and the camera compensates with its
+own darker filter so the footage stays grim without dimming any text.
+
 ---
 
 *The instrument makes no claim as to the existence of the dead. It only reports the instruments.*

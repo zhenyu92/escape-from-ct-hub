@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ESCAPE FROM CT HUB — Paranormal Commute Advisory</title>
+<meta name="description" content="A paranormal commute advisory for CT Hub, 2 Kallang Avenue. All readings are live.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23050405'/%3E%3Ctext y='24' x='16' text-anchor='middle' font-size='22'%3E%F0%9F%95%AF%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#050405;
+  --panel:#0a0809;
+  --line:#241a0d;
+  --amber:#ffb000;
+  --amber-mid:#b87c00;
+  --amber-dim:#7d5608;
+  --ghost:#7a6a58;
+  --blood:#ff2f2f;
+  --blood-dim:#5c0d0d;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--amber);font-family:var(--mono)}
+body{
+  min-height:100vh;
+  font-size:13px;
+  line-height:1.45;
+  letter-spacing:.04em;
+  padding-block:18px;
+  padding-left:16px;padding-right:16px;
+  overflow-x:hidden;
+}
+
+/* ---- CRT overlays ---- */
+#scan,#vignette,#flick{position:fixed;inset:0;pointer-events:none;z-index:90}
+#scan{
+  background:repeating-linear-gradient(180deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,0,0,.36) 3px,rgba(0,0,0,.36) 4px);
+  mix-blend-mode:multiply;
+}
+#vignette{
+  background:radial-gradient(ellipse 120% 95% at 50% 45%,rgba(0,0,0,0) 40%,rgba(0,0,0,.75) 100%);
+}
+#flick{background:var(--amber);opacity:0;animation:flick 7s infinite steps(1)}
+@keyframes flick{
+  0%,96%{opacity:0}
+  96.4%{opacity:.022}
+  96.8%{opacity:0}
+  97.6%{opacity:.014}
+  98%{opacity:0}
+}
+@media (prefers-reduced-motion:reduce){
+  #flick{animation:none}
+  .blink,.pulse,.breathe{animation:none!important}
+}
+
+.wrap{max-width:900px;margin:0 auto;position:relative;z-index:1}
+
+/* ---- header ---- */
+header{border:1px solid var(--line);background:var(--panel);padding:10px 12px;margin-bottom:10px}
+.hrow{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:space-between}
+h1{
+  font-size:14px;margin:0;font-weight:400;letter-spacing:.18em;
+  text-shadow:0 0 10px rgba(255,176,0,.45);
+}
+h1 .sub{display:block;font-size:10px;color:var(--amber-mid);letter-spacing:.28em;margin-top:3px}
+.meta{font-size:10px;color:var(--ghost);text-align:right;letter-spacing:.1em}
+.meta b{color:var(--amber-mid);font-weight:400}
+
+/* ---- verdict ---- */
+#verdict{
+  border:1px solid var(--line);background:var(--panel);
+  padding:26px 16px;margin-bottom:10px;text-align:center;position:relative;overflow:hidden;
+}
+#verdict::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 50%,rgba(255,176,0,.07),transparent 70%);
+  animation:breathe 5.5s ease-in-out infinite;
+}
+.breathe{animation:breathe 5.5s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.35}50%{opacity:1}}
+#vLabel{
+  font-size:clamp(24px,7.5vw,44px);letter-spacing:.14em;margin:0 0 10px;
+  font-weight:400;position:relative;text-shadow:0 0 22px rgba(255,176,0,.5);
+}
+#vBody{font-size:12px;color:var(--amber-mid);max-width:min(52ch,100%);margin:0 auto;position:relative;min-height:2.9em}
+#vBody .hot{color:var(--amber)}
+#verdict.dead{border-color:var(--blood-dim)}
+#verdict.dead #vLabel{color:var(--blood);text-shadow:0 0 26px rgba(255,47,47,.55)}
+#verdict.dead::before{background:radial-gradient(ellipse at 50% 50%,rgba(255,47,47,.09),transparent 70%)}
+#verdict.dead #vBody{color:#b06a6a}
+#verdict.flee #vLabel{animation:pulse 1.05s steps(1) infinite}
+@keyframes pulse{0%,60%{opacity:1}61%,100%{opacity:.42}}
+
+/* ---- grid ---- */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px}
+@media (max-width:620px){.grid{grid-template-columns:1fr}}
+.panel{border:1px solid var(--line);background:var(--panel);padding:10px 12px}
+.pt{
+  font-size:9px;letter-spacing:.26em;color:var(--ghost);
+  display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 8px;
+  margin-bottom:8px;border-bottom:1px solid var(--line);padding-bottom:6px;
+}
+.pt .cls{color:var(--amber-dim)}
+.big{font-size:19px;letter-spacing:.06em;margin-bottom:2px;overflow-wrap:anywhere}
+.big .u{font-size:11px;color:var(--amber-mid);letter-spacing:.1em}
+.note{font-size:10px;color:var(--ghost);line-height:1.5;overflow-wrap:anywhere}
+.note em{color:var(--amber-mid);font-style:normal}
+
+/* segmented meter */
+.meter{display:flex;gap:2px;margin:8px 0 6px;height:9px}
+.seg{flex:1;background:#1a1206;border:1px solid #241a0d}
+.seg.on{background:var(--amber-mid);box-shadow:0 0 7px rgba(255,176,0,.5)}
+.seg.hi{background:var(--blood);box-shadow:0 0 8px rgba(255,47,47,.6)}
+
+/* bus table */
+#bus .row{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px dotted #1c1409;font-size:12px;min-width:0}
+#bus .row:last-child{border-bottom:none}
+#bus .svc{color:var(--amber);min-width:3.4em;flex:none}
+#bus .eta{color:var(--amber-mid);text-align:right;white-space:nowrap;flex:none}
+#bus .eta.soon{color:var(--blood)}
+/* min-width:0 is what actually lets this ellipsis instead of widening the page */
+#bus .whr{color:var(--ghost);font-size:10px;flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* cctv */
+#cctv{grid-column:1/-1}
+.feedbox{position:relative;background:#000;border:1px solid var(--line);aspect-ratio:16/9;overflow:hidden;max-width:100%}
+.feedbox img{width:100%;height:100%;object-fit:cover;display:block;
+  filter:grayscale(1) contrast(2.1) brightness(.34) sepia(.75) hue-rotate(-20deg) saturate(3.2) blur(.35px);
+}
+.feedbox .noise,.feedbox .lines,.feedbox .track,.feedbox .murk{position:absolute;inset:0;pointer-events:none}
+.feedbox .lines{background:repeating-linear-gradient(180deg,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.55) 3px 4px)}
+/* crushes the corners so the frame never reads as a nice photograph */
+.feedbox .murk{
+  background:
+    radial-gradient(ellipse 78% 70% at 50% 48%,rgba(0,0,0,0) 35%,rgba(0,0,0,.9) 100%),
+    linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,0) 22%,rgba(0,0,0,0) 74%,rgba(0,0,0,.6));
+}
+.feedbox .noise{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  opacity:.34;mix-blend-mode:screen;animation:jitter .35s steps(2) infinite;
+}
+/* the head drifts. it always drifts. */
+.feedbox .track{
+  background:linear-gradient(180deg,rgba(0,0,0,0) 0,rgba(255,255,255,.05) 42%,rgba(255,255,255,.11) 50%,rgba(255,255,255,.05) 58%,rgba(0,0,0,0) 100%);
+  height:16%;top:-16%;animation:track 9s linear infinite;
+}
+@keyframes track{0%{top:-16%}100%{top:104%}}
+@keyframes jitter{0%{transform:translate(0,0)}50%{transform:translate(-3px,2px)}100%{transform:translate(2px,-2px)}}
+@media (prefers-reduced-motion:reduce){.feedbox .track,.feedbox .noise{animation:none}}
+.feedbox .osd{
+  position:absolute;left:8px;right:8px;display:flex;justify-content:space-between;gap:8px;
+  font-size:9px;letter-spacing:.14em;color:#ffb000;z-index:2;
+  text-shadow:0 0 6px #000,0 0 3px #000,0 1px 2px #000;
+}
+.feedbox .osd.t{top:7px}
+.feedbox .osd.b{bottom:7px}
+.rec{color:var(--blood)}
+.blink{animation:bl 1.15s steps(1) infinite}
+@keyframes bl{0%,50%{opacity:1}51%,100%{opacity:.1}}
+
+/* log */
+#log{border:1px solid var(--line);background:var(--panel);padding:10px 12px;margin-bottom:10px}
+#logLines{font-size:10px;color:var(--ghost);max-height:132px;overflow:hidden;line-height:1.65}
+#logLines div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#logLines .ts{color:var(--amber-dim)}
+#logLines .w{color:var(--amber-mid)}
+#logLines .e{color:var(--blood)}
+
+footer{font-size:9px;color:#5b4f42;text-align:center;letter-spacing:.1em;line-height:1.8;padding-bottom:10px}
+footer a{color:var(--amber-dim)}
+.override{margin-top:8px;font-size:9px;color:var(--ghost);letter-spacing:.14em}
+.override button{
+  font:inherit;font-size:9px;letter-spacing:.14em;background:transparent;color:var(--amber-dim);
+  border:1px solid var(--line);padding:3px 8px;cursor:pointer;margin-left:6px;
+}
+.override button:hover{color:var(--amber);border-color:var(--amber-dim)}
+.override button[aria-pressed="true"]{color:var(--blood);border-color:var(--blood-dim)}
+.err{color:var(--blood-dim)}
+</style>
+</head>
+<body>
+<div id="scan"></div><div id="vignette"></div><div id="flick"></div>
+
+<div class="wrap">
+
+<header>
+  <div class="hrow">
+    <h1>ESCAPE FROM CT HUB<span class="sub">PARANORMAL COMMUTE ADVISORY</span></h1>
+    <div class="meta">
+      STATION <b>CT-HUB / 2 KALLANG AVE</b><br>
+      <span id="clock">--:--:--</span> SGT &nbsp;·&nbsp; <span id="samhain">…</span>
+    </div>
+  </div>
+</header>
+
+<div id="verdict">
+  <div id="vLabel" class="breathe">CALIBRATING</div>
+  <div id="vBody">The instrument is drawing breath. Stand still.</div>
+</div>
+
+<div class="grid">
+
+  <div class="panel" id="pCold">
+    <div class="pt"><span>❄ THERMAL ANOMALY</span><span class="cls" data-cls>—</span></div>
+    <div class="big"><span data-v>—</span> <span class="u" data-u></span></div>
+    <div class="meter" data-meter></div>
+    <div class="note" data-n>Awaiting thermometry.</div>
+  </div>
+
+  <div class="panel" id="pRain">
+    <div class="pt"><span>☂ ECTOPLASMIC PRECIPITATION</span><span class="cls" data-cls>—</span></div>
+    <div class="big"><span data-v>—</span> <span class="u" data-u></span></div>
+    <div class="meter" data-meter></div>
+    <div class="note" data-n>Awaiting condensate.</div>
+  </div>
+
+  <div class="panel" id="pMist">
+    <div class="pt"><span>≋ SPECTRAL MIST DENSITY</span><span class="cls" data-cls>—</span></div>
+    <div class="big"><span data-v>—</span> <span class="u" data-u></span></div>
+    <div class="meter" data-meter></div>
+    <div class="note" data-n>Awaiting particulate.</div>
+  </div>
+
+  <div class="panel" id="pUv">
+    <div class="pt"><span>☉ SOLAR SUPPRESSION</span><span class="cls" data-cls>—</span></div>
+    <div class="big"><span data-v>—</span> <span class="u" data-u></span></div>
+    <div class="meter" data-meter></div>
+    <div class="note" data-n>Awaiting irradiance.</div>
+  </div>
+
+  <div class="panel" id="pVanish">
+    <div class="pt"><span>⌁ THE VANISHING</span><span class="cls" data-cls>SÉANCE</span></div>
+    <div class="big"><span data-v>—</span> <span class="u" data-u></span></div>
+    <div class="meter" data-meter></div>
+    <div class="note" data-n>Communing. The spirits are still gathering.</div>
+  </div>
+
+  <div class="panel" id="pEmf">
+    <div class="pt"><span>◈ AGGREGATE EMF</span><span class="cls" data-cls>—</span></div>
+    <div class="big"><span data-v>—</span> <span class="u" data-u></span></div>
+    <div class="meter" data-meter></div>
+    <div class="note" data-n>Awaiting field.</div>
+  </div>
+
+  <div class="panel" id="bus">
+    <div class="pt"><span>⊟ THE ARRIVALS</span><span class="cls" data-cls>—</span></div>
+    <div id="busRows"><div class="note">Interrogating the timetable.</div></div>
+  </div>
+
+  <div class="panel" id="pOmen">
+    <div class="pt"><span>◐ TWO-HOUR PORTENT</span><span class="cls" data-cls>—</span></div>
+    <div class="big" style="font-size:15px"><span data-v>—</span></div>
+    <div class="note" data-n>Awaiting augury.</div>
+  </div>
+
+  <div class="panel" id="cctv">
+    <div class="pt"><span>▣ SURVEILLANCE</span><span class="cls" data-cls>—</span></div>
+    <div class="feedbox">
+      <img id="cam" alt="Live roadside camera, degraded" referrerpolicy="no-referrer">
+      <div class="murk"></div><div class="lines"></div><div class="track"></div><div class="noise"></div>
+      <div class="osd t"><span id="camId">CAM ——</span><span class="rec blink">● REC</span></div>
+      <div class="osd b"><span id="camWhere">ACQUIRING</span><span id="camTs">--:--:--</span></div>
+    </div>
+    <div class="note" data-n style="margin-top:7px">Nearest open eye.</div>
+  </div>
+
+</div>
+
+<div id="log">
+  <div class="pt"><span>▤ INSTRUMENT LOG</span><span class="cls" id="logCls">—</span></div>
+  <div id="logLines"></div>
+</div>
+
+<footer>
+  ALL READINGS ARE LIVE AND UNMODIFIED · <a href="https://data.gov.sg" target="_blank" rel="noopener">data.gov.sg</a> ·
+  NEA · LTA VIA <a href="https://busrouter.sg" target="_blank" rel="noopener">busrouter.sg</a><br>
+  THE INSTRUMENT MAKES NO CLAIM AS TO THE EXISTENCE OF THE DEAD. IT ONLY REPORTS THE INSTRUMENTS.
+  <div class="override">
+    RITUAL OVERRIDE
+    <button id="btnSamhain" aria-pressed="false" type="button">FORCE SAMHAIN</button>
+    <button id="btnNight" aria-pressed="false" type="button">FORCE NIGHT</button>
+  </div>
+</footer>
+
+</div>
+
+<script>
+"use strict";
+
+/* ══════════════════════════════════════════════════════════════
+   ESCAPE FROM CT HUB — a paranormal commute advisory
+   Every reading below is a real live measurement. The instrument
+   simply declines to describe them in ordinary language.
+   ══════════════════════════════════════════════════════════════ */
+
+const SITE = {
+  name: "CT HUB / 2 KALLANG AVE",
+  lat: 1.31130,
+  lng: 103.86370,
+  stops: [
+    { id: "07379", name: "Aperia / Bef Kallang Rd", m: 131 },
+    { id: "07369", name: "Aft Kallang Bahru",       m: 147 }
+  ]
+};
+
+// The v2 endpoints carry far more stations than v1 (18 thermometers and 88
+// rain gauges, against 1 and 4 on v1 at time of writing), so we prefer them
+// and keep v1 as a fallback. v2 has no traffic-images equivalent — it 403s —
+// so the cameras stay on v1.
+const API = {
+  temp:  "https://api-open.data.gov.sg/v2/real-time/api/air-temperature",
+  rain:  "https://api-open.data.gov.sg/v2/real-time/api/rainfall",
+  tempV1:"https://api.data.gov.sg/v1/environment/air-temperature",
+  rainV1:"https://api.data.gov.sg/v1/environment/rainfall",
+  pm25:  "https://api.data.gov.sg/v1/environment/pm25",
+  uv:    "https://api.data.gov.sg/v1/environment/uv-index",
+  fcast: "https://api.data.gov.sg/v1/environment/2-hour-weather-forecast",
+  taxi:  "https://api.data.gov.sg/v1/transport/taxi-availability",
+  cams:  "https://api.data.gov.sg/v1/transport/traffic-images",
+  bus:   id => "https://arrivelah2.busrouter.sg/?id=" + id
+};
+
+/* ---------- small helpers ---------- */
+const $  = s => document.querySelector(s);
+const el = (p, s) => p.querySelector(s);
+
+function metres(aLat, aLng, bLat, bLng) {
+  const k = 111320;
+  const x = (aLng - bLng) * k * Math.cos(aLat * Math.PI / 180);
+  const y = (aLat - bLat) * k;
+  return Math.hypot(x, y);
+}
+const clamp01 = v => Math.max(0, Math.min(1, v));
+const near = (arr, getLL) => arr
+  .map(o => { const ll = getLL(o); return { o, d: metres(SITE.lat, SITE.lng, ll[0], ll[1]) }; })
+  .sort((a, b) => a.d - b.d);
+
+function sgNow(){
+  // Singapore is UTC+8 year-round, no DST.
+  return new Date(Date.now() + (8 * 60 + new Date().getTimezoneOffset()) * 60000);
+}
+const pad = n => String(n).padStart(2, "0");
+const hhmmss = d => pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
+
+async function grab(url, label){
+  const r = await fetch(url, { cache: "no-store" });
+  if (!r.ok) throw new Error(label + " HTTP " + r.status);
+  return r.json();
+}
+
+/* Normalises a station feed to [{id,name,lat,lng,v}], preferring the
+   richer v2 shape and falling back to v1 if v2 is unreachable. */
+async function stationFeed(v2url, v1url, label){
+  try {
+    const d = await grab(v2url, label);
+    const data = d.data;
+    if (!data || !data.stations || !data.readings || !data.readings.length) throw new Error("empty v2");
+    const by = Object.fromEntries(data.stations.map(s => [s.id, s]));
+    const out = data.readings[0].data
+      .filter(r => by[r.stationId] && (by[r.stationId].location || by[r.stationId].labelLocation))
+      .map(r => {
+        const s = by[r.stationId], L = s.location || s.labelLocation;
+        return { id: s.id, name: s.name, lat: L.latitude, lng: L.longitude, v: r.value };
+      });
+    if (!out.length) throw new Error("empty v2");
+    return { pts: out, src: "v2", ts: data.readings[0].timestamp };
+  } catch (e) {
+    const d = await grab(v1url, label + " (v1)");
+    if (!d.items || !d.items.length) throw new Error("no readings");
+    const by = Object.fromEntries(d.metadata.stations.map(s => [s.id, s]));
+    const out = d.items[0].readings
+      .filter(r => by[r.station_id])
+      .map(r => {
+        const s = by[r.station_id];
+        return { id: s.id, name: s.name, lat: s.location.latitude, lng: s.location.longitude, v: r.value };
+      });
+    if (!out.length) throw new Error("no readings");
+    return { pts: out, src: "v1", ts: d.items[0].timestamp };
+  }
+}
+
+/* ---------- instrument log ---------- */
+const LOG = [];
+function log(text, kind){
+  LOG.unshift({ t: hhmmss(sgNow()), text, kind: kind || "" });
+  if (LOG.length > 9) LOG.pop();
+  $("#logLines").innerHTML = LOG
+    .map(l => `<div><span class="ts">${l.t}</span> <span class="${l.kind}">${l.text}</span></div>`)
+    .join("");
+}
+
+/* ---------- state ---------- */
+const S = {
+  cold: null, rain: null, mist: null, uv: null, vanish: null,
+  omen: null, bus: null, cam: null,
+  taxiHistory: [],      // session-only séance memory
+  sessionStart: Date.now(),
+  // ?samhain=1 and ?night=1 let you witness the 31st of October early.
+  forceSamhain: new URLSearchParams(location.search).has("samhain"),
+  forceNight:   new URLSearchParams(location.search).has("night")
+};
+
+/* ---------- seasonal + diurnal escalation ---------- */
+function samhain(){
+  const n = sgNow();
+  const y = n.getFullYear();
+  let target = new Date(y, 9, 31);              // 31 Oct
+  if (n > new Date(y, 10, 1)) target = new Date(y + 1, 9, 31);
+  const days = Math.ceil((target - n) / 86400000);
+  const isOct = n.getMonth() === 9;
+  const isNight = S.forceNight || n.getHours() >= 19 || n.getHours() < 7;
+
+  let season = 0.15, label;
+  if (S.forceSamhain) {
+    season = 1; label = "SAMHAIN — THE VEIL IS OPEN";
+  } else if (isOct && n.getDate() === 31) {
+    season = 1; label = "SAMHAIN — THE VEIL IS OPEN";
+  } else if (isOct) {
+    season = 0.35 + 0.6 * (n.getDate() / 31);
+    label = "THE VEIL THINS · " + days + "D TO SAMHAIN";
+  } else {
+    label = "INSTRUMENT DORMANT · " + days + "D TO SAMHAIN";
+  }
+  return { season, isNight, label, days };
+}
+
+/* ---------- meters ---------- */
+const SEGS = 10;
+function meter(node, v01, hot){
+  const on = Math.round(clamp01(v01) * SEGS);
+  node.innerHTML = Array.from({ length: SEGS }, (_, i) => {
+    const cls = i >= on ? "seg" : (hot && i >= SEGS - 3) ? "seg on hi" : "seg on";
+    return `<i class="${cls}"></i>`;
+  }).join("");
+}
+function classOf(v01){
+  if (v01 >= .85) return "CLASS V";
+  if (v01 >= .65) return "CLASS IV";
+  if (v01 >= .45) return "CLASS III";
+  if (v01 >= .25) return "CLASS II";
+  if (v01 > 0)    return "CLASS I";
+  return "NIL";
+}
+function paint(sel, { value, unit, v01, note, cls, hot }){
+  const p = $(sel);
+  el(p, "[data-v]").textContent = value;
+  const u = el(p, "[data-u]"); if (u) u.textContent = unit || "";
+  const m = el(p, "[data-meter]"); if (m) meter(m, v01, hot);
+  el(p, "[data-n]").innerHTML = note;
+  el(p, "[data-cls]").textContent = cls !== undefined ? cls : classOf(v01);
+}
+function panelFail(sel, why){
+  const p = $(sel);
+  el(p, "[data-n]").innerHTML = `<span class="err">SENSOR SILENT — ${why}</span>`;
+  el(p, "[data-cls]").textContent = "NO SIGNAL";
+}
+
+/* ══════════════ SENSORS ══════════════ */
+
+/* ❄ Thermal anomaly — the cold spot.
+   Real: NEA air-temperature stations. We compare the station nearest
+   CT Hub against the island-wide mean. Ghost hunters call this a cold
+   spot. Meteorologists call it Tuesday. */
+async function readCold(){
+  const { pts, src } = await stationFeed(API.temp, API.tempV1, "air-temperature");
+
+  const mean = pts.reduce((a, p) => a + p.v, 0) / pts.length;
+  const ranked = near(pts, p => [p.lat, p.lng]);
+  const here = ranked[0];
+  const coldest = pts.slice().sort((a, b) => a.v - b.v)[0];
+  const delta = here.o.v - mean;                 // negative = colder than island
+  const lone = pts.length < 3;                   // can't call an anomaly against yourself
+
+  const v01 = lone ? 0 : clamp01(-delta / 2.0);  // 2 °C below mean saturates
+  S.cold = { delta, v01, here: here.o, mean, coldest, n: pts.length };
+
+  paint("#pCold", {
+    value: lone ? "—" : (delta <= 0 ? "−" : "+") + Math.abs(delta).toFixed(1),
+    unit: lone ? "INSUFFICIENT WITNESSES" : "°C VS ISLAND MEAN",
+    v01, hot: v01 > .8,
+    cls: lone ? "INDETERMINATE" : undefined,
+    note: lone
+      ? `Only <em>${pts.length}</em> thermometer${pts.length === 1 ? " is" : "s are"} reporting island-wide `
+        + `(${here.o.name}, ${here.o.v.toFixed(1)}°C). An anomaly cannot be measured against itself. `
+        + `The network has gone quiet, which the instrument declines to interpret.`
+      : `<em>${here.o.name}</em> reads ${here.o.v.toFixed(1)}°C at ${(here.d / 1000).toFixed(1)}km. `
+        + `Island mean ${mean.toFixed(1)}°C across ${pts.length} stations [${src}]. `
+        + (v01 > .45
+            ? `Localised cooling of this magnitude is consistent with a presence.`
+            : `Thermally unremarkable. The dead are elsewhere.`)
+        + ` Coldest point on the island: ${coldest.name}, ${coldest.v.toFixed(1)}°C.`
+  });
+  log(`thermal ${lone ? "indeterminate (" + pts.length + " stations)"
+      : "Δ" + (delta >= 0 ? "+" : "−") + Math.abs(delta).toFixed(1) + "°C at " + here.o.name}`,
+      lone ? "w" : "");
+}
+
+/* ☂ Ectoplasmic precipitation — the thing that actually soaks you.
+   Real: NEA 5-minute rainfall gauges. We want two numbers: is it
+   raining ON the stop, and how far away is the nearest gauge that
+   is wet. The second one is the whole product. */
+async function readRain(){
+  const { pts } = await stationFeed(API.rain, API.rainV1, "rainfall");
+
+  const ranked = near(pts, p => [p.lat, p.lng]);
+  const here = ranked[0];
+  const wet = ranked.filter(x => x.o.v > 0);
+  const wetCount = wet.length;
+  const nearestWet = wet[0] || null;
+
+  // On you = maximum. Otherwise falls off with distance to nearest wet gauge.
+  let v01;
+  if (here.o.v > 0)      v01 = clamp01(.6 + here.o.v / 5);
+  else if (nearestWet)   v01 = clamp01(1 - nearestWet.d / 12000);
+  else                   v01 = 0;
+
+  S.rain = { hereMm: here.o.v, nearestWet, wetCount, v01 };
+
+  let note;
+  const hereWhere = `<em>${here.o.name}</em>, ${(here.d / 1000).toFixed(1)}km from the station`;
+  if (here.o.v > 0) {
+    note = `Condensate falling <em>on the station</em> — ${here.o.v.toFixed(1)}mm in the last five minutes `
+         + `at ${here.o.name}, ${(here.d / 1000).toFixed(1)}km out. ${wetCount} of ${pts.length} gauges are wet.`;
+  } else if (nearestWet) {
+    note = `Dry at ${hereWhere}. Nearest manifestation <em>${(nearestWet.d / 1000).toFixed(1)}km</em> away at `
+         + `${nearestWet.o.name} (${nearestWet.o.v.toFixed(1)}mm). ${wetCount} of ${pts.length} gauges are wet. `
+         + (nearestWet.d < 4000 ? `It is close. It is not yet here.` : `It has not chosen you.`);
+  } else {
+    note = `All ${pts.length} gauges dry, nearest at ${hereWhere}. The island is holding its breath.`;
+  }
+  paint("#pRain", {
+    value: here.o.v.toFixed(1), unit: "MM / 5MIN AT STATION",
+    v01, hot: here.o.v > 0, note
+  });
+  log(`rainfall ${here.o.v.toFixed(1)}mm here · ${wetCount} wet gauges`, wetCount ? "w" : "");
+}
+
+/* ≋ Spectral mist — PM2.5 by region. */
+async function readMist(){
+  const d = await grab(API.pm25, "pm25");
+  const regions = d.region_metadata;
+  const vals = d.items[0].readings.pm25_one_hourly;
+  const ranked = near(regions, r => [r.label_location.latitude, r.label_location.longitude]);
+  const reg = ranked[0].o.name;
+  const v = vals[reg];
+  const all = Object.values(vals);
+  const worst = Object.entries(vals).sort((a, b) => b[1] - a[1])[0];
+
+  const v01 = clamp01(v / 55);
+  S.mist = { v, region: reg, v01 };
+  paint("#pMist", {
+    value: v, unit: "µg/m³ PM2.5 · " + reg.toUpperCase(),
+    v01, hot: v >= 55,
+    note: `Suspended matter over the <em>${reg}</em> region. Island range ${Math.min(...all)}–${Math.max(...all)}. `
+        + `Densest at ${worst[0]} (${worst[1]}). `
+        + (v01 > .5 ? `Visibility of the unseen is improved.` : `The air is inconveniently clear.`)
+  });
+  log(`pm2.5 ${v} µg/m³ (${reg})`);
+}
+
+/* ☉ Solar suppression — UV index, inverted.
+   Nothing walks in daylight. */
+async function readUv(){
+  const d = await grab(API.uv, "uv-index");
+  const idx = d.items[0].index;
+  const latest = idx && idx.length ? idx[0] : null;
+  if (!latest) throw new Error("no index");
+  const v = latest.value;
+  const v01 = clamp01(1 - v / 8);
+  S.uv = { v, v01 };
+  paint("#pUv", {
+    value: v, unit: "UV INDEX",
+    v01, hot: v === 0,
+    note: v === 0
+      ? `Solar radiance at <em>zero</em>. Nothing is being held back. This is the hour.`
+      : `Solar radiance ${v} of 11. Suppression ${(v01 * 100).toFixed(0)}%. `
+        + (v01 > .6 ? `The light is failing.` : `Daylight is still doing its work.`)
+  });
+  log(`uv index ${v}`);
+}
+
+/* ◐ Two-hour portent — NEA nowcast for the nearest named area. */
+async function readOmen(){
+  const d = await grab(API.fcast, "2-hour-forecast");
+  const areas = d.area_metadata;
+  const fc = d.items[0].forecasts;
+  const map = Object.fromEntries(fc.map(f => [f.area, f.forecast]));
+  const ranked = near(areas.filter(a => map[a.name]), a => [a.label_location.latitude, a.label_location.longitude]);
+  const a = ranked[0];
+  const text = map[a.o.name];
+  const wet = /rain|shower|thunder/i.test(text);
+  const heavy = /heavy|thundery/i.test(text);
+
+  S.omen = { area: a.o.name, text, wet, heavy };
+  paint("#pOmen", {
+    value: text.toUpperCase(), unit: "",
+    v01: heavy ? 1 : wet ? .6 : .1, hot: heavy,
+    cls: wet ? (heavy ? "GRAVE" : "ADVERSE") : "BENIGN",
+    note: `Augury for <em>${a.o.name}</em>, ${Math.round(a.d / 100) / 10}km from the station, next two hours. `
+        + (wet ? `Water is coming. Plan the escape accordingly.` : `No water foretold. This is not a promise.`)
+  });
+  log(`portent ${a.o.name}: ${text}`);
+}
+
+/* ⌁ The Vanishing — the séance.
+   Real: the count of AVAILABLE taxis within 3km. One reading means
+   nothing. The instrument must watch. With no server, memory begins
+   when you open the tab — so the wait is the ritual. */
+async function readVanish(){
+  const d = await grab(API.taxi, "taxi-availability");
+  const coords = d.features[0].geometry.coordinates;
+  const total = coords.length;
+  let nearCount = 0;
+  for (const c of coords) {
+    if (metres(SITE.lat, SITE.lng, c[1], c[0]) < 3000) nearCount++;
+  }
+  S.taxiHistory.push({ t: Date.now(), near: nearCount, total });
+  if (S.taxiHistory.length > 240) S.taxiHistory.shift();
+
+  const h = S.taxiHistory;
+  const elapsedMin = (Date.now() - S.sessionStart) / 60000;
+  const first = h[0];
+  const delta = nearCount - first.near;
+  const pct = first.near > 0 ? (delta / first.near) * 100 : 0;
+
+  // Below ~4 minutes of watching, and fewer than 3 readings, the instrument
+  // refuses to conclude. Both gates must open or the copy contradicts itself.
+  const MIN_MIN = 4, MIN_N = 3;
+  const settled = elapsedMin >= MIN_MIN && h.length >= MIN_N;
+  const v01 = settled ? clamp01(-pct / 30) : 0;
+  S.vanish = { nearCount, total, pct, settled, elapsedMin };
+
+  paint("#pVanish", {
+    value: nearCount, unit: "SOULS WITHIN 3KM",
+    v01, hot: settled && pct < -20,
+    cls: settled ? classOf(v01) : "SÉANCE",
+    note: settled
+      ? `${total.toLocaleString()} available taxis island-wide. Within 3km the count has moved `
+        + `<em>${pct >= 0 ? "+" : "−"}${Math.abs(pct).toFixed(0)}%</em> since the séance began `
+        + `${elapsedMin.toFixed(0)} minutes ago. `
+        + (pct < -20 ? `They are leaving. They know something.`
+          : pct > 20 ? `They are gathering. That is not better.`
+          : `The fleet is holding.`)
+      : `Communing. ${total.toLocaleString()} available taxis island-wide, ${nearCount} within 3km. `
+        + `<em>${Math.min(elapsedMin, MIN_MIN).toFixed(1)} of ${MIN_MIN.toFixed(1)} minutes, `
+        + `${h.length} of ${MIN_N} readings.</em> `
+        + `A single glance proves nothing. Leave the instrument running.`
+  });
+  log(`taxis ${nearCount} near / ${total} island`);
+}
+
+/* ⊟ The arrivals — the bus that may or may not come.
+   Real: LTA arrivals for the two stops that actually serve CT Hub. */
+async function readBus(){
+  const results = await Promise.allSettled(
+    SITE.stops.map(s => grab(API.bus(s.id), "arrivals " + s.id).then(d => ({ stop: s, d })))
+  );
+  const ok = results.filter(r => r.status === "fulfilled").map(r => r.value);
+  if (!ok.length) throw new Error("all stops silent");
+
+  const rows = [];
+  for (const { stop, d } of ok) {
+    for (const svc of (d.services || [])) {
+      if (!svc.next || svc.next.duration_ms == null) continue;
+      const mins = svc.next.duration_ms / 60000;
+      // arrivelah reports a negative duration for a bus sitting at the kerb and
+      // for one that has already gone. Keep the former, bury the latter.
+      if (mins < -1) continue;
+      rows.push({ no: svc.no, mins, load: svc.next.load, stop });
+    }
+  }
+  rows.sort((a, b) => a.mins - b.mins);
+  S.bus = rows;
+
+  const LOADS = { SEA: "EMPTY", SDA: "FILLING", LSD: "FULL OF THEM" };
+  $("#busRows").innerHTML = rows.slice(0, 7).map(r => {
+    const m = r.mins < 1 ? "ARRIVING" : Math.floor(r.mins) + " MIN";
+    return `<div class="row">
+      <span class="svc">${r.no}</span>
+      <span class="whr">${r.stop.name} · ${LOADS[r.load] || "—"}</span>
+      <span class="eta${r.mins <= 3 ? " soon" : ""}">${m}</span>
+    </div>`;
+  }).join("") || `<div class="note">No service is coming. Not now, not soon.</div>`;
+
+  const soonest = rows.length ? rows[0].mins : null;
+  el($("#bus"), "[data-cls]").textContent =
+    soonest === null ? "SILENT" : soonest <= 3 ? "IMMINENT" : soonest <= 10 ? "PENDING" : "DISTANT";
+  log(`arrivals ${rows.length} services, soonest ${soonest === null ? "none" : soonest.toFixed(1) + "m"}`);
+}
+
+/* ▣ Surveillance — whichever roadside eye is nearest and still open.
+   The feed thins out sometimes. That is not a bug in the instrument. */
+async function readCam(){
+  const d = await grab(API.cams, "traffic-images");
+  const cams = d.items[0].cameras || [];
+  if (!cams.length) throw new Error("no eyes open");
+  const ranked = near(cams, c => [c.location.latitude, c.location.longitude]);
+  const c = ranked[0];
+  S.cam = { id: c.o.camera_id, d: c.d, n: cams.length };
+
+  $("#cam").src = c.o.image + (c.o.image.includes("?") ? "&" : "?") + "t=" + Date.now();
+  $("#camId").textContent = "CAM " + c.o.camera_id;
+  $("#camWhere").textContent = (c.d / 1000).toFixed(1) + " KM FROM STATION";
+  $("#camTs").textContent = hhmmss(new Date(c.o.timestamp));
+  el($("#cctv"), "[data-cls]").textContent = cams.length + " EYES OPEN";
+  el($("#cctv"), "[data-n]").innerHTML = cams.length < 20
+    ? `Only <em>${cams.length}</em> of the island's roadside cameras are returning an image. `
+      + `The nearest still watching is ${(c.d / 1000).toFixed(1)}km away. The rest have closed.`
+    : `Nearest open eye, ${(c.d / 1000).toFixed(1)}km from the station. `
+      + `${cams.length} cameras reporting. Frame is ${Math.round((Date.now() - new Date(c.o.timestamp)) / 1000)}s old.`;
+  log(`surveillance cam ${c.o.camera_id} @ ${(c.d / 1000).toFixed(1)}km · ${cams.length} eyes`,
+      cams.length < 20 ? "w" : "");
+}
+
+/* ══════════════ AGGREGATE + VERDICT ══════════════ */
+
+function readEmf(){
+  const parts = [
+    S.cold   && { w: 1.1, v: S.cold.v01 },
+    S.rain   && { w: 1.4, v: S.rain.v01 },
+    S.mist   && { w: .8,  v: S.mist.v01 },
+    S.uv     && { w: .9,  v: S.uv.v01 },
+    S.vanish && S.vanish.settled && { w: 1.0, v: S.vanish.v01 }
+  ].filter(Boolean);
+  if (!parts.length) return;
+
+  const sm = samhain();
+  const wsum = parts.reduce((a, p) => a + p.w, 0);
+  const base = parts.reduce((a, p) => a + p.w * p.v, 0) / wsum;
+  const v01 = clamp01(base * (0.55 + 0.45 * sm.season) * (sm.isNight ? 1.18 : 1));
+  const milli = (v01 * 9.4).toFixed(2);
+
+  paint("#pEmf", {
+    value: milli, unit: "mG COMPOSITE",
+    v01, hot: v01 > .8,
+    note: `Weighted across ${parts.length} live sensors`
+        + (sm.isNight ? `, with the nocturnal coefficient applied` : ``)
+        + `, scaled to proximity to Samhain (${(sm.season * 100).toFixed(0)}%). `
+        + (v01 > .8 ? `The field is loud. Do not linger at the stop.`
+          : v01 > .5 ? `The field is active.`
+          : `The field is quiet. It has been quiet before.`)
+  });
+}
+
+/* The verdict. Underneath the costume this is the honest answer to
+   the only question that matters: run for the bus, or don't. */
+function renderVerdict(){
+  const v = $("#verdict"), L = $("#vLabel"), B = $("#vBody");
+  v.classList.remove("dead", "flee");
+
+  if (!S.bus) {
+    L.textContent = "NO ANSWER";
+    B.innerHTML = "The timetable will not speak. Whether anything is coming for you is, for now, unknowable.";
+    return;
+  }
+  const soonest = S.bus.length ? S.bus[0] : null;
+  const rainNow  = S.rain && S.rain.hereMm > 0;
+  const rainNear = S.rain && S.rain.nearestWet && S.rain.nearestWet.d < 4000;
+  const rainSoon = S.omen && S.omen.wet;
+  const wet = rainNow || rainNear || rainSoon;
+
+  if (!soonest) {
+    v.classList.add("dead");
+    L.textContent = "YOU ARE ALREADY DEAD";
+    B.innerHTML = "Nothing is scheduled to arrive at either stop. "
+      + (wet ? "And the water is coming. " : "")
+      + "Walk to Bendemeer, or make your peace.";
+    return;
+  }
+  const m = soonest.mins;
+  const busTxt = m < 1 ? "is arriving now"
+               : m < 2 ? "is a minute away"
+               : "is " + Math.floor(m) + " minutes away";
+
+  if (rainNow && m > 8) {
+    v.classList.add("dead");
+    L.textContent = "YOU ARE ALREADY DEAD";
+    B.innerHTML = `Service <span class="hot">${soonest.no}</span> ${busTxt}. `
+      + `Ectoplasm is falling <span class="hot">directly on the station</span>. `
+      + `You cannot outrun this and you cannot wait it out dry. Go back inside.`;
+  } else if (wet && m <= 8) {
+    v.classList.add("flee");
+    L.textContent = "FLEE";
+    B.innerHTML = `Service <span class="hot">${soonest.no}</span> ${busTxt} and water is `
+      + (rainNow ? `already on you` : rainNear ? `<span class="hot">${(S.rain.nearestWet.d / 1000).toFixed(1)}km</span> out and closing` : `foretold within the hour`)
+      + `. This is the window. <span class="hot">Run.</span>`;
+  } else if (!wet && m <= 3) {
+    v.classList.add("flee");
+    L.textContent = "FLEE";
+    B.innerHTML = `Service <span class="hot">${soonest.no}</span> ${busTxt}. `
+      + `The sky is empty and so is your excuse. <span class="hot">Run.</span>`;
+  } else if (wet && m > 8) {
+    v.classList.add("dead");
+    L.textContent = "YOU ARE ALREADY DEAD";
+    B.innerHTML = `Service <span class="hot">${soonest.no}</span> ${busTxt}, and water is `
+      + (rainNear ? `${(S.rain.nearestWet.d / 1000).toFixed(1)}km out` : `foretold`)
+      + `. It will reach the stop before the bus does. The outcome is settled.`;
+  } else {
+    L.textContent = "HOLD YOUR GROUND";
+    B.innerHTML = `Service <span class="hot">${soonest.no}</span> ${busTxt}. No water at the station, `
+      + `none foretold. There is no reason to run and no reason to be afraid. `
+      + `<span class="hot">Yet.</span>`;
+  }
+}
+
+/* ══════════════ ORCHESTRATION ══════════════ */
+
+async function sweep(first){
+  const jobs = [
+    ["#pCold",   readCold],
+    ["#pRain",   readRain],
+    ["#pMist",   readMist],
+    ["#pUv",     readUv],
+    ["#pOmen",   readOmen],
+    ["#pVanish", readVanish],
+    ["#bus",     readBus],
+    ["#cctv",    readCam]
+  ];
+  const out = await Promise.allSettled(jobs.map(([, fn]) => fn()));
+  let dead = 0;
+  out.forEach((r, i) => {
+    if (r.status === "rejected") {
+      dead++;
+      panelFail(jobs[i][0], String(r.reason && r.reason.message || r.reason).toUpperCase());
+      log("sensor fault: " + jobs[i][0].slice(1) + " — " + (r.reason && r.reason.message), "e");
+    }
+  });
+  readEmf();
+  renderVerdict();
+  $("#logCls").textContent = dead ? `${jobs.length - dead}/${jobs.length} SENSORS` : "ALL SENSORS NOMINAL";
+  if (first) log("instrument warm. session memory begins now.", "w");
+}
+
+function tick(){
+  const n = sgNow();
+  $("#clock").textContent = hhmmss(n);
+  const sm = samhain();
+  $("#samhain").textContent = sm.label + (sm.isNight ? " · NOCTURNAL" : "");
+}
+
+$("#btnSamhain").addEventListener("click", e => {
+  S.forceSamhain = !S.forceSamhain;
+  e.currentTarget.setAttribute("aria-pressed", String(S.forceSamhain));
+  log(S.forceSamhain ? "ritual override: SAMHAIN forced" : "ritual override lifted", "w");
+  readEmf(); tick();
+});
+$("#btnNight").addEventListener("click", e => {
+  S.forceNight = !S.forceNight;
+  e.currentTarget.setAttribute("aria-pressed", String(S.forceNight));
+  log(S.forceNight ? "ritual override: NIGHT forced" : "nocturnal override lifted", "w");
+  readEmf(); tick();
+});
+
+$("#btnSamhain").setAttribute("aria-pressed", String(S.forceSamhain));
+$("#btnNight").setAttribute("aria-pressed", String(S.forceNight));
+
+log("instrument powering on…");
+tick();
+setInterval(tick, 1000);
+sweep(true);
+setInterval(sweep, 60000);          // full sweep every minute
+setInterval(() => {                 // the séance watches taxis more closely
+  readVanish().then(readEmf).catch(() => {});
+}, 30000);
+</script>
+</body>
+</html>
